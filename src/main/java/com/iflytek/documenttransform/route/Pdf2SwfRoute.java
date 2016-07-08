@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.iflytek.documenttransform.common.JsonResult;
+import com.iflytek.documenttransform.config.Config;
 import com.iflytek.documenttransform.config.Constant;
 import com.iflytek.documenttransform.tranform.Pdf2SwfTransform;
 
@@ -21,6 +22,7 @@ import io.netty.handler.codec.http.QueryStringDecoder;
  */
 public class Pdf2SwfRoute extends JsonRoute {
 
+    @Override
     protected Object doTransform(HttpRequest request) {
         QueryStringDecoder queryStringDecoder = new QueryStringDecoder(request.uri());
         Map<String, List<String>> uriAttributes = queryStringDecoder.parameters();
@@ -43,6 +45,12 @@ public class Pdf2SwfRoute extends JsonRoute {
         }
 
         String pdfFileId = fileIds.get(0);
+
+        if (!checkFileSizeLimit(pdfFileId, Config.OFFICE_FILESIZE_LIMIT)) {
+            return JsonResult
+                    .FailureJsonResult("单个快照PDF到SWF的文件大小不能超过" + Config.OFFICE_FILESIZE_LIMIT + "M");
+        }
+
         Pdf2SwfTransform pdf2SwfTransform = new Pdf2SwfTransform();
         String swfFileId = pdf2SwfTransform.transform(pdfFileId, null);
 

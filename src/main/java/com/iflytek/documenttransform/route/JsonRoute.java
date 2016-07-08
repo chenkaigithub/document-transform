@@ -7,6 +7,7 @@ import java.util.Map;
 
 import com.alibaba.fastjson.JSON;
 import com.iflytek.documenttransform.config.Constant;
+import com.iflytek.documenttransform.store.FastdfsFileServer;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -26,6 +27,21 @@ import io.netty.util.CharsetUtil;
  * @date 2016年6月17日
  */
 public abstract class JsonRoute implements Route {
+
+    /**
+     * 
+     * @Description: 检查是否符合文件大小
+     * @param fileId
+     * @param sizeMaxLimit
+     * @return 超过大小返回false,否则返回true
+     */
+    protected boolean checkFileSizeLimit(String fileId, int maxSizeMBLimit) {
+        long byteSize = FastdfsFileServer.INSTANCE.fileSize(fileId);
+        if ((byteSize / 1024 / 1024) > maxSizeMBLimit) {
+            return false;
+        }
+        return true;
+    }
 
     /*
      * (non-Javadoc)

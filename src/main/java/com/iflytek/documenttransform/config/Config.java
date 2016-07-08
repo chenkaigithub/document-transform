@@ -44,6 +44,12 @@ public class Config {
     public static boolean     FASTDFS_CONFIG_ANTISTEAL_TOKEN   = false;
     public static String      FASTDFS_CONFIG_HTTPSECRET_KEY    = null;
 
+    // UNIT MB
+    public static int         OFFICE_FILESIZE_LIMIT            = 10;
+    // UNIT MB
+    public static int         VIDEO_FILESIZE_LIMIT             = 10;
+
+
 
     static {
         Properties properties = new Properties();
@@ -89,6 +95,16 @@ public class Config {
         }
         if (properties.containsKey("exec.ffmpeg")) {
             EXEC_FFMPEG = properties.getProperty("exec.ffmpeg", "/usr/local/bin/ffmpeg");
+        }
+
+
+        if (properties.containsKey("office.fileSize.limit")) {
+            OFFICE_FILESIZE_LIMIT =
+                    Integer.parseInt(properties.getProperty("office.fileSize.limit", "10"));
+        }
+        if (properties.containsKey("video.fileSize.limit")) {
+            VIDEO_FILESIZE_LIMIT =
+                    Integer.parseInt(properties.getProperty("video.fileSize.limit", "10"));
         }
 
 

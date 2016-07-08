@@ -21,6 +21,7 @@ import io.netty.handler.codec.http.QueryStringDecoder;
  * @date 2016年6月13日
  */
 public class Flv2JpegRoute extends JsonRoute {
+    @Override
     protected Object doTransform(HttpRequest request) {
         QueryStringDecoder queryStringDecoder = new QueryStringDecoder(request.uri());
         Map<String, List<String>> uriAttributes = queryStringDecoder.parameters();
@@ -42,6 +43,7 @@ public class Flv2JpegRoute extends JsonRoute {
             return JsonResult.FailureJsonResult("目前只支持单次单个文件转换");
         }
 
+
         final List<String> timestamps = uriAttributes.get(Constant.TIMESTAMP);
         if (timestamps.isEmpty()) {
             return JsonResult
@@ -54,6 +56,9 @@ public class Flv2JpegRoute extends JsonRoute {
 
 
         String flvFileId = fileIds.get(0);
+
+
+
         Flv2JpegTransform flv2JpegTransform = new Flv2JpegTransform();
         @SuppressWarnings("serial")
         String jpegFileId = flv2JpegTransform.transform(flvFileId, new HashMap<String, Object>() {

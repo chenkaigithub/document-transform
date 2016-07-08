@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.iflytek.documenttransform.common.JsonResult;
+import com.iflytek.documenttransform.config.Config;
 import com.iflytek.documenttransform.config.Constant;
 import com.iflytek.documenttransform.tranform.Office2PdfTransform;
 
@@ -43,9 +44,14 @@ public class Office2PdfRoute extends JsonRoute {
             return JsonResult.FailureJsonResult("目前只支持单次单个文件转换");
         }
         String officeFileId = fileIds.get(0);
+        if (!checkFileSizeLimit(officeFileId, Config.OFFICE_FILESIZE_LIMIT)) {
+            return JsonResult.FailureJsonResult(
+                    "单个转换OFFICE到PDF的文件大小不能超过" + Config.OFFICE_FILESIZE_LIMIT + "M");
+        }
+
+
         Office2PdfTransform office2PdfTransform = new Office2PdfTransform();
         String pdfFileId = office2PdfTransform.transform(officeFileId, null);
-
 
         return JsonResult.SuccessJsonResult(pdfFileId);
     }

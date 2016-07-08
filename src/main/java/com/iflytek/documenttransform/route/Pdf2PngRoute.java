@@ -10,6 +10,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 
 import com.iflytek.documenttransform.common.JsonResult;
+import com.iflytek.documenttransform.config.Config;
 import com.iflytek.documenttransform.config.Constant;
 import com.iflytek.documenttransform.tranform.Pdf2PngTransform;
 
@@ -24,6 +25,7 @@ import io.netty.handler.codec.http.QueryStringDecoder;
  */
 public class Pdf2PngRoute extends JsonRoute {
 
+    @Override
     protected Object doTransform(HttpRequest request) {
         QueryStringDecoder queryStringDecoder = new QueryStringDecoder(request.uri());
         Map<String, List<String>> uriAttributes = queryStringDecoder.parameters();
@@ -64,6 +66,12 @@ public class Pdf2PngRoute extends JsonRoute {
         final int page = Integer.parseInt(pages.get(0));
 
         String pdfFileId = fileIds.get(0);
+
+        if (!checkFileSizeLimit(pdfFileId, Config.OFFICE_FILESIZE_LIMIT)) {
+            return JsonResult
+                    .FailureJsonResult("单个快照PDF到PNG的文件大小不能超过" + Config.OFFICE_FILESIZE_LIMIT + "M");
+        }
+
         Pdf2PngTransform pdf2PngTransform = new Pdf2PngTransform();
         @SuppressWarnings("serial")
         String pngFileId = pdf2PngTransform.transform(pdfFileId, new HashMap<String, Object>() {

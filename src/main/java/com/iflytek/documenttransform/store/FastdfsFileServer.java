@@ -5,12 +5,14 @@ package com.iflytek.documenttransform.store;
 
 import java.io.InputStream;
 import java.net.InetSocketAddress;
+import java.util.Date;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.csource.common.NameValuePair;
 import org.csource.fastdfs.ClientGlobal;
+import org.csource.fastdfs.FileInfo;
 import org.csource.fastdfs.StorageClient;
 import org.csource.fastdfs.StorageServer;
 import org.csource.fastdfs.TrackerClient;
@@ -45,6 +47,7 @@ public class FastdfsFileServer implements FileApi {
         setHttpSecretKey(Config.FASTDFS_CONFIG_HTTPSECRET_KEY);
     }
 
+    @Override
     public String saveFile(byte[] data, String fileName) {
         String fileId = null;
         try {
@@ -66,6 +69,7 @@ public class FastdfsFileServer implements FileApi {
         return fileId;
     }
 
+    @Override
     public String saveUploadFile(InputStream inputSteam, String fileName) {
         String fileId = null;
         try {
@@ -85,6 +89,7 @@ public class FastdfsFileServer implements FileApi {
         return fileId;
     }
 
+    @Override
     public byte[] get(String fileId) {
         if (!fileId.contains(":")) {
             throw new RuntimeException("fieldId必须以\"卷号:文件名\"为格式");
@@ -105,6 +110,57 @@ public class FastdfsFileServer implements FileApi {
         }
     }
 
+    /**
+     * 获取文件信息,如大小, 创建时间
+     * 
+     * @Description:
+     */
+    private FileInfo fileInfo(String fileId) {
+        if (!fileId.contains(":")) {
+            throw new RuntimeException("fieldId必须以\"卷号:文件名\"为格式");
+        }
+        String[] groupAndFileName = StringUtils.split(fileId, ":");
+
+        try {
+            TrackerClient tracker = new TrackerClient();
+            TrackerServer trackerServer = tracker.getConnection();
+            StorageServer storageServer = null;
+
+            StorageClient storageClient = new StorageClient(trackerServer, storageServer);
+            FileInfo fileInfo =
+                    storageClient.get_file_info(groupAndFileName[0], groupAndFileName[1]);
+            return fileInfo;
+        } catch (Exception e) {
+            throw new TransformException("获取文件信息失败", e);
+        }
+    }
+
+    /**
+     * 获取文件大小
+     * 
+     * @Description:
+     * @param fileId
+     * @return
+     */
+    public long fileSize(String fileId) {
+        return fileInfo(fileId).getFileSize();
+    }
+
+    /**
+     * 获取文件创建 时间
+     * 
+     * @Description:
+     * @param fileId
+     * @return
+     */
+    public Date createTime(String fileId) {
+        return fileInfo(fileId).getCreateTimestamp();
+    }
+
+    /**
+     * 获取文件的自定义属性信息
+     */
+    @Override
     public String fileMateValue(String fileId, String metaKey) {
         if (!fileId.contains(":")) {
             throw new RuntimeException("fieldId必须以\"卷号:文件名\"为格式");
@@ -131,11 +187,12 @@ public class FastdfsFileServer implements FileApi {
                 }
             }
         } catch (Exception e) {
-            throw new TransformException("获取文件元信息失败", e);
+            throw new TransformException("获取文件的自定义属性信息失败", e);
         }
         return null;
     }
 
+    @Override
     public void remove(String fileId) {
         if (!fileId.contains(":")) {
             throw new RuntimeException("fieldId必须以\"卷号:文件名\"为格式");

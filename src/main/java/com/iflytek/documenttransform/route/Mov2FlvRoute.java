@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.iflytek.documenttransform.common.JsonResult;
+import com.iflytek.documenttransform.config.Config;
 import com.iflytek.documenttransform.config.Constant;
 import com.iflytek.documenttransform.tranform.Mov2FlvTransform;
 
@@ -43,6 +44,10 @@ public class Mov2FlvRoute extends JsonRoute {
         }
 
         String movFileId = fileIds.get(0);
+        if (!checkFileSizeLimit(movFileId, Config.VIDEO_FILESIZE_LIMIT)) {
+            return JsonResult.FailureJsonResult("单个转换视频大小不能超过" + Config.VIDEO_FILESIZE_LIMIT + "M");
+        }
+
         Mov2FlvTransform mov2FlvTransform = new Mov2FlvTransform();
         String flvFileId = mov2FlvTransform.transform(movFileId, null);
 

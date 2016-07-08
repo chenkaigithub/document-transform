@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.iflytek.documenttransform.common.JsonResult;
+import com.iflytek.documenttransform.config.Config;
 import com.iflytek.documenttransform.config.Constant;
 import com.iflytek.documenttransform.tranform.Mp42FlvTransform;
 
@@ -20,8 +21,9 @@ import io.netty.handler.codec.http.QueryStringDecoder;
  * @date 2016年6月13日
  */
 public class Mp42FlvRoute extends JsonRoute {
-        
 
+
+    @Override
     protected Object doTransform(HttpRequest request) {
         QueryStringDecoder queryStringDecoder = new QueryStringDecoder(request.uri());
         Map<String, List<String>> uriAttributes = queryStringDecoder.parameters();
@@ -44,8 +46,12 @@ public class Mp42FlvRoute extends JsonRoute {
         }
 
         String mp4FileId = fileIds.get(0);
+        if (!checkFileSizeLimit(mp4FileId, Config.VIDEO_FILESIZE_LIMIT)) {
+            return JsonResult.FailureJsonResult("单个转换视频大小不能超过" + Config.VIDEO_FILESIZE_LIMIT + "M");
+        }
+
         Mp42FlvTransform mp42FlvTransform = new Mp42FlvTransform();
-        String flvFileId = mp42FlvTransform.transform(mp4FileId,null);
+        String flvFileId = mp42FlvTransform.transform(mp4FileId, null);
 
 
         return JsonResult.SuccessJsonResult(flvFileId);
