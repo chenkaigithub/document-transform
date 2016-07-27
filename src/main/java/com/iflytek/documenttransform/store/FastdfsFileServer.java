@@ -31,7 +31,7 @@ import com.iflytek.documenttransform.config.Config;
  * @author suenlai
  * @date 2016年6月8日
  */
-public class FastdfsFileServer implements FileApi {
+public class FastdfsFileServer {
 
     private static final Logger           LOGGER   =
             LoggerFactory.getLogger(FastdfsFileServer.class);
@@ -47,7 +47,6 @@ public class FastdfsFileServer implements FileApi {
         setHttpSecretKey(Config.FASTDFS_CONFIG_HTTPSECRET_KEY);
     }
 
-    @Override
     public String saveFile(byte[] data, String fileName) {
         String fileId = null;
         try {
@@ -69,7 +68,6 @@ public class FastdfsFileServer implements FileApi {
         return fileId;
     }
 
-    @Override
     public String saveUploadFile(InputStream inputSteam, String fileName) {
         String fileId = null;
         try {
@@ -89,7 +87,6 @@ public class FastdfsFileServer implements FileApi {
         return fileId;
     }
 
-    @Override
     public byte[] get(String fileId) {
         if (!fileId.contains(":")) {
             throw new RuntimeException("fieldId必须以\"卷号:文件名\"为格式");
@@ -160,7 +157,6 @@ public class FastdfsFileServer implements FileApi {
     /**
      * 获取文件的自定义属性信息
      */
-    @Override
     public String fileMateValue(String fileId, String metaKey) {
         if (!fileId.contains(":")) {
             throw new RuntimeException("fieldId必须以\"卷号:文件名\"为格式");
@@ -192,7 +188,6 @@ public class FastdfsFileServer implements FileApi {
         return null;
     }
 
-    @Override
     public void remove(String fileId) {
         if (!fileId.contains(":")) {
             throw new RuntimeException("fieldId必须以\"卷号:文件名\"为格式");
